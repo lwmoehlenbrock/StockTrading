@@ -2,12 +2,14 @@ package com.codediff.stock;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.convert.DataSizeUnit;
+import org.springframework.stereotype.Component;
 
 import javax.validation.constraints.Size;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+@Component
 public class User {
     private String userName;
     @Size(min = 5, message = "Password needs to be more than 5 characters Long")
@@ -17,11 +19,14 @@ public class User {
 
     @Autowired
     StockRepo stockRepo;
-    public User(String userName, String password, double cash, StockRepo stockRepo){
+
+    public User(String userName, String password, double cash){
         this.userName = userName;
         this.password = password;
         this.cash = cash;
-        this.stockRepo =stockRepo;
+        this.stockRepo = new StockRepo();
+        //stockRepo.buyStock("apple",1);
+        //this.stockRepo =stockRepo;
     }
 
     public User(){
@@ -48,8 +53,26 @@ public class User {
         return cash;
     }
 
-    public void setCash(double cash) {
-        this.cash = cash;
+    public String setCash(double cash) {
+        if(cash >0){
+            this.cash = cash;
+            return "";
+        }
+        else{
+            return "Amount needs to be more than $0";
+        }
+    }
+    public String widthraw(double amount){
+        if(cash < amount){
+            return "Insufficient funds";
+        }
+        cash -= amount;
+        return "Your remaining balance is "+cash;
+    }
+
+    public String addCash(double amount){
+        cash += amount;
+       return "Your new balance is "+ cash;
     }
 
     public String getPassword() {

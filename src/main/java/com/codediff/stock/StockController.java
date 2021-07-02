@@ -1,5 +1,6 @@
 package com.codediff.stock;
 
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -7,9 +8,11 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.Map;
 
 @RestController
 public class StockController {
+
 
     @Autowired
     UserRepo users;
@@ -18,19 +21,21 @@ public class StockController {
     User currentUser;
 
     @PostMapping("/login")
-    public ResponseEntity<String> newUser(@RequestBody User user){
+    public ResponseEntity<String> newUser(@RequestBody User user, HttpServletResponse response) throws IOException{
         if(users.getUsernames().contains(user.getUserName())){
             return new ResponseEntity<String>("User " + user.getUserName() + " already exists", HttpStatus.IM_USED);
         }
         users.addUser(user);
+        currentUser = users.getUserById(user.getUserName());
+        response.sendRedirect("/account");
         return new ResponseEntity<String>("Welcome " + user.getUserName() + "!", HttpStatus.CREATED);
     }
 
     @GetMapping("/login")
     public ResponseEntity<String> login(@RequestBody User user, HttpServletResponse response) throws IOException {
-        if(users.getIds().contains(user.getId())){
-            if(users.getUserById(user.getUserName()).getPassword() == user.getPassword()){
-                currentUser = users.getUserByID(user.getUserName());
+        if(users.getUsernames().contains(user.getUserName())){
+            if(users.getUserById(user.getUserName()).getPassword().equals(user.getPassword())){
+                currentUser = users.getUserById(user.getUserName());
                 response.sendRedirect("/account");
                 return new ResponseEntity<String>("Login Successful!", HttpStatus.ACCEPTED);
             }
@@ -50,7 +55,7 @@ public class StockController {
 
     @GetMapping("/stock/{stock}")
     public String getStockPrice(@PathVariable String ticker){
-        return ticker + ": $" + StockRetriever.getMarketPrice(ticker);
+        return ticker + ": $";// + StockRetriever.getMarketPrice(ticker);
     }
 
     @PostMapping("/deposit")
@@ -71,22 +76,30 @@ public class StockController {
     }
 
     @PostMapping("/buy")
-    public ResponseEntity<String> buyStock(@RequestBody String ticker, @RequestBody Integer amount, HttpServletResponse response) throws IOException{
-        double marketPrice = StockRetriever.getMarketPrice(ticker);
+    public ResponseEntity<String> buyStock(@RequestBody ObjectNode objectNode, HttpServletResponse response) throws IOException{
+        String ticker = objectNode.get("ticker").asText();
+        int amount = objectNode.get("amount").asInt();
+
+        double marketPrice = 1;//StockRetriever.getMarketPrice(ticker);
+
         if(marketPrice * amount > currentUser.getCash()){
             return new ResponseEntity<String>("Insufficient funds", HttpStatus.NOT_ACCEPTABLE);
         }
         currentUser.getStockRepo().buyStock(ticker, amount);
+        currentUser.setCash(currentUser.getCash() - (marketPrice * amount));
         response.sendRedirect("/account");
         return new ResponseEntity<String>("Success!", HttpStatus.ACCEPTED);
     }
 
     @PostMapping("/sell")
-    public ResponseEntity<String> sellStock(@RequestBody String ticker, @RequestBody Integer amount, HttpServletResponse response) throws IOException{
+    public ResponseEntity<String> sellStock(@RequestBody ObjectNode objectNode, HttpServletResponse response) throws IOException{
+        String ticker = objectNode.get("ticker").asText();
+        int amount = objectNode.get("amount").asInt();
+
         if(currentUser.getStockRepo().getStocks().get(ticker) < amount || !currentUser.getStockRepo().getStocks().containsKey(ticker)){
             return new ResponseEntity<String>("You do not own enough of " + ticker, HttpStatus.NOT_ACCEPTABLE);
         }
-        double marketPrice = StockRetriever.getMarketPrice(ticker);
+        double marketPrice = 1;//StockRetriever.getMarketPrice(ticker);
         currentUser.setCash(currentUser.getCash() + marketPrice * amount);
         currentUser.getStockRepo().sellStock(ticker, amount);
         response.sendRedirect("/account");

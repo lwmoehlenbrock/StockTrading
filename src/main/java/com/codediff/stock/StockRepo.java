@@ -21,12 +21,20 @@ public class StockRepo {
 
 
     public HashMap<String,Integer> buyStock(String ticker, Integer amount){
-            stocks.put(ticker, amount);
+            if(stocks.containsKey(ticker)){
+                stocks.put(ticker, stocks.get(ticker) + amount);
+            }
+            else{
+                stocks.put(ticker,amount);
+            }
             return stocks;
     }
 
     public HashMap<String,Integer> sellStock(String ticker, Integer amount){
-        stocks.remove(ticker, amount);
+        stocks.put(ticker, stocks.get(ticker) - amount);
+        if(stocks.get(ticker) == 0){
+            stocks.remove(ticker);
+        }
         return stocks;
 
     }
