@@ -11,6 +11,7 @@ import java.io.IOException;
 @RestController
 public class StockController {
 
+
     @Autowired
     UserRepo users;
 
