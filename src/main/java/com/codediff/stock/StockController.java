@@ -28,9 +28,9 @@ public class StockController {
 
     @GetMapping("/login")
     public ResponseEntity<String> login(@RequestBody User user, HttpServletResponse response) throws IOException {
-        if(users.getIds().contains(user.getId())){
+        if(users.getUsernames().contains(user.getUserName())){
             if(users.getUserById(user.getUserName()).getPassword() == user.getPassword()){
-                currentUser = users.getUserByID(user.getUserName());
+                currentUser = users.getUserById(user.getUserName());
                 response.sendRedirect("/account");
                 return new ResponseEntity<String>("Login Successful!", HttpStatus.ACCEPTED);
             }
