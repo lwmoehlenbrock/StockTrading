@@ -21,7 +21,7 @@ public class StockRepo {
 
 
     public HashMap<String,Integer> buyStock(String ticker, Integer amount){
-            stocks.put(ticker, amount);
+            stocks.put(ticker, stocks.get(ticker) + amount);
             return stocks;
     }
 

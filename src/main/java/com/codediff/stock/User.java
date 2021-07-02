@@ -19,11 +19,14 @@ public class User {
 
     @Autowired
     StockRepo stockRepo;
-    public User(String userName, String password, double cash, StockRepo stockRepo){
+
+    public User(String userName, String password, double cash){
         this.userName = userName;
         this.password = password;
         this.cash = cash;
-        this.stockRepo =stockRepo;
+        this.stockRepo = new StockRepo();
+        //stockRepo.buyStock("apple",1);
+        //this.stockRepo =stockRepo;
     }
 
     public User(){

@@ -36,7 +36,8 @@ public class UserRepo {
     }
 
     public void addUser(User user){
-        users.add(user);
+
+        users.add(new User(user.getUserName(), user.getPassword(), 0));
     }
 
 }

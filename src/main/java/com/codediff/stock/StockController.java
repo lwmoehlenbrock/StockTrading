@@ -1,5 +1,6 @@
 package com.codediff.stock;
 
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -7,6 +8,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.Map;
 
 @RestController
 public class StockController {
@@ -74,12 +76,17 @@ public class StockController {
     }
 
     @PostMapping("/buy")
-    public ResponseEntity<String> buyStock(@RequestBody String ticker, @RequestBody Integer amount, HttpServletResponse response) throws IOException{
+    public ResponseEntity<String> buyStock(@RequestBody ObjectNode objectNode, HttpServletResponse response) throws IOException{
+        String ticker = objectNode.get("ticker").asText();
+        int amount = objectNode.get("amount").asInt();
+
         double marketPrice = 1;//StockRetriever.getMarketPrice(ticker);
+
         if(marketPrice * amount > currentUser.getCash()){
             return new ResponseEntity<String>("Insufficient funds", HttpStatus.NOT_ACCEPTABLE);
         }
         currentUser.getStockRepo().buyStock(ticker, amount);
+        currentUser.setCash(currentUser.getCash() - (marketPrice * amount));
         response.sendRedirect("/account");
         return new ResponseEntity<String>("Success!", HttpStatus.ACCEPTED);
     }
