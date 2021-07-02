@@ -6,16 +6,24 @@ import java.util.HashMap;
 
 @Component
 public class StockRepo {
-    double cash;
+
     HashMap<String,Integer> stocks;
 
+
     StockRepo(){
-        cash = 0;
         stocks = new HashMap<String,Integer>();
     }
 
-    public String buyStocks(String ticker, Integer amount){
-    return "";
+
+
+    public HashMap<String,Integer> buyStocks(String ticker, Integer amount){
+            stocks.put(ticker, amount);
+            return stocks;
     }
 
+    public HashMap<String,Integer> sellStocks(String ticker, Integer amount){
+        stocks.remove(ticker, amount);
+        return stocks;
+
+    }
 }
