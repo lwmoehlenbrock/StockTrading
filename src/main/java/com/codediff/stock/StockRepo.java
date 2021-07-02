@@ -21,7 +21,12 @@ public class StockRepo {
 
 
     public HashMap<String,Integer> buyStock(String ticker, Integer amount){
-            stocks.put(ticker, stocks.get(ticker) + amount);
+            if(stocks.containsKey(ticker)){
+                stocks.put(ticker, stocks.get(ticker) + amount);
+            }
+            else{
+                stocks.put(ticker,amount);
+            }
             return stocks;
     }
 
