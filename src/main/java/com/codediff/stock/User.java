@@ -50,8 +50,26 @@ public class User {
         return cash;
     }
 
-    public void setCash(double cash) {
-        this.cash = cash;
+    public String setCash(double cash) {
+        if(cash >0){
+            this.cash = cash;
+            return "";
+        }
+        else{
+            return "Amount needs to be more than $0";
+        }
+    }
+    public String widthraw(double amount){
+        if(cash < amount){
+            return "Insufficient funds";
+        }
+        cash -= amount;
+        return "Your remaining balance is "+cash;
+    }
+
+    public String addCash(double amount){
+        cash += amount;
+       return "Your new balance is "+ cash;
     }
 
     public String getPassword() {
