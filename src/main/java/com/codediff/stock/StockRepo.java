@@ -31,7 +31,10 @@ public class StockRepo {
     }
 
     public HashMap<String,Integer> sellStock(String ticker, Integer amount){
-        stocks.remove(ticker, amount);
+        stocks.put(ticker, stocks.get(ticker) - amount);
+        if(stocks.get(ticker) == 0){
+            stocks.remove(ticker);
+        }
         return stocks;
 
     }

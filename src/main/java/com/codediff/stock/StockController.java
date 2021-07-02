@@ -92,7 +92,10 @@ public class StockController {
     }
 
     @PostMapping("/sell")
-    public ResponseEntity<String> sellStock(@RequestBody String ticker, @RequestBody Integer amount, HttpServletResponse response) throws IOException{
+    public ResponseEntity<String> sellStock(@RequestBody ObjectNode objectNode, HttpServletResponse response) throws IOException{
+        String ticker = objectNode.get("ticker").asText();
+        int amount = objectNode.get("amount").asInt();
+
         if(currentUser.getStockRepo().getStocks().get(ticker) < amount || !currentUser.getStockRepo().getStocks().containsKey(ticker)){
             return new ResponseEntity<String>("You do not own enough of " + ticker, HttpStatus.NOT_ACCEPTABLE);
         }
