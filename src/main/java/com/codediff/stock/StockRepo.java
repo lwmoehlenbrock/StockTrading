@@ -15,7 +15,7 @@ public class StockRepo {
     }
 
     public String buyStocks(String ticker, Integer amount){
-
+    return "";
     }
 
 }
