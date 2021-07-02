@@ -2,12 +2,14 @@ package com.codediff.stock;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.convert.DataSizeUnit;
+import org.springframework.stereotype.Component;
 
 import javax.validation.constraints.Size;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+@Component
 public class User {
     private String userName;
     @Size(min = 5, message = "Password needs to be more than 5 characters Long")
