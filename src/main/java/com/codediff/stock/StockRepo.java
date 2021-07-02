@@ -6,7 +6,7 @@ import java.util.HashMap;
 
 @Component
 public class StockRepo {
-    
+
     HashMap<String,Integer> stocks;
 
 
