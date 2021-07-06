@@ -71,4 +71,8 @@ public class UserController {
         return new ResponseEntity<String>("Success! New balance: " + currentUser.getCash(), HttpStatus.ACCEPTED);
     }
 
+    @GetMapping("/balance")
+    public double getBalance() throws IOException{
+        return currentUser.getStockBalance();
+    }
 }
