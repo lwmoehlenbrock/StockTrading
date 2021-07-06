@@ -14,66 +14,14 @@ import java.util.Map;
 public class StockController {
 
 
-    @Autowired
-    UserRepo users;
 
-    @Autowired
-    User currentUser;
-
-    @PostMapping("/login")
-    public ResponseEntity<String> newUser(@RequestBody User user, HttpServletResponse response) throws IOException{
-        if(users.getUsernames().contains(user.getUserName())){
-            return new ResponseEntity<String>("User " + user.getUserName() + " already exists", HttpStatus.IM_USED);
-        }
-        users.addUser(user);
-        currentUser = users.getUserById(user.getUserName());
-        response.sendRedirect("/account");
-        return new ResponseEntity<String>("Welcome " + user.getUserName() + "!", HttpStatus.CREATED);
-    }
-
-    @GetMapping("/login")
-    public ResponseEntity<String> login(@RequestBody User user, HttpServletResponse response) throws IOException {
-        if(users.getUsernames().contains(user.getUserName())){
-            if(users.getUserById(user.getUserName()).getPassword().equals(user.getPassword())){
-                currentUser = users.getUserById(user.getUserName());
-                response.sendRedirect("/account");
-                return new ResponseEntity<String>("Login Successful!", HttpStatus.ACCEPTED);
-            }
-            else{
-                return new ResponseEntity<String>("Wrong password, try again.", HttpStatus.UNAUTHORIZED);
-            }
-        }
-        else{
-            return new ResponseEntity<String>("User not found", HttpStatus.NOT_FOUND);
-        }
-    }
-
-    @GetMapping("/account")
-    public User getCurrentUser(){
-        return currentUser;
-    }
 
     @GetMapping("/stock/{stock}")
     public String getStockPrice(@PathVariable String stock) throws IOException {
         return stock + ": $" + StockRetriever.getCurrentResponse(stock);
     }
 
-    @PostMapping("/deposit")
-    public double depositCash(@RequestBody double amount, HttpServletResponse response) throws IOException {
-        currentUser.setCash(currentUser.getCash() + amount);
-        response.sendRedirect("/account");
-        return currentUser.getCash();
-    }
 
-    @PostMapping("/withdraw")
-    public ResponseEntity<String> withdrawCash(@RequestBody double amount, HttpServletResponse response) throws IOException {
-        if(currentUser.getCash() < amount){
-            return new ResponseEntity<String>("Insufficient funds", HttpStatus.NOT_ACCEPTABLE);
-        }
-        currentUser.setCash(currentUser.getCash() - amount);
-        response.sendRedirect("/account");
-        return new ResponseEntity<String>("Success! New balance: " + currentUser.getCash(), HttpStatus.ACCEPTED);
-    }
 
     @PostMapping("/buy")
     public ResponseEntity<String> buyStock(@RequestBody ObjectNode objectNode, HttpServletResponse response) throws IOException{
@@ -82,11 +30,11 @@ public class StockController {
 
         double marketPrice = StockRetriever.getCurrentResponse(ticker);
 
-        if(marketPrice * amount > currentUser.getCash()){
+        if(marketPrice * amount > UserController.getCurrentUser().getCash()){
             return new ResponseEntity<String>("Insufficient funds", HttpStatus.NOT_ACCEPTABLE);
         }
-        currentUser.getStockRepo().buyStock(ticker, amount);
-        currentUser.setCash(currentUser.getCash() - (marketPrice * amount));
+        UserController.getCurrentUser().getStockRepo().buyStock(ticker, amount);
+        UserController.getCurrentUser().setCash(UserController.getCurrentUser().getCash() - (marketPrice * amount));
         response.sendRedirect("/account");
         return new ResponseEntity<String>("Success!", HttpStatus.ACCEPTED);
     }
@@ -96,14 +44,14 @@ public class StockController {
         String ticker = objectNode.get("ticker").asText();
         int amount = objectNode.get("amount").asInt();
 
-        if(currentUser.getStockRepo().getStocks().get(ticker) < amount || !currentUser.getStockRepo().getStocks().containsKey(ticker)){
+        if(UserController.getCurrentUser().getStockRepo().getStocks().get(ticker) < amount || !UserController.getCurrentUser().getStockRepo().getStocks().containsKey(ticker)){
             return new ResponseEntity<String>("You do not own enough of " + ticker, HttpStatus.NOT_ACCEPTABLE);
         }
         double marketPrice = StockRetriever.getCurrentResponse(ticker);
-        currentUser.setCash(currentUser.getCash() + marketPrice * amount);
-        currentUser.getStockRepo().sellStock(ticker, amount);
+        UserController.getCurrentUser().setCash(UserController.getCurrentUser().getCash() + marketPrice * amount);
+        UserController.getCurrentUser().getStockRepo().sellStock(ticker, amount);
         response.sendRedirect("/account");
-        return new ResponseEntity<String>("Success! New balance: " + currentUser.getCash(), HttpStatus.ACCEPTED);
+        return new ResponseEntity<String>("Success! New balance: " + UserController.getCurrentUser().getCash(), HttpStatus.ACCEPTED);
 
     }
 

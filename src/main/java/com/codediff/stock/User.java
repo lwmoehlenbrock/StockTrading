@@ -1,13 +1,11 @@
 package com.codediff.stock;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.convert.DataSizeUnit;
 import org.springframework.stereotype.Component;
 
 import javax.validation.constraints.Size;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
+import java.io.IOException;
+import java.util.*;
 
 @Component
 public class User {
@@ -89,6 +87,15 @@ public class User {
 
     public void setStockRepo(StockRepo stockRepo) {
         this.stockRepo = stockRepo;
+    }
+
+    public double getStockBalance() throws IOException {
+        double total = 0;
+        for(Map.Entry<String,Integer> pair: stockRepo.getStocks().entrySet()){
+            total += pair.getValue() * StockRetriever.getCurrentResponse(pair.getKey());
+        }
+        return total;
+
     }
 
     @Override
