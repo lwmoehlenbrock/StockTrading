@@ -54,8 +54,8 @@ public class StockController {
     }
 
     @GetMapping("/stock/{stock}")
-    public String getStockPrice(@PathVariable String ticker){
-        return ticker + ": $";// + StockRetriever.getMarketPrice(ticker);
+    public String getStockPrice(@PathVariable String stock) throws IOException {
+        return stock + ": $" + StockRetriever.getCurrentResponse(stock);
     }
 
     @PostMapping("/deposit")
@@ -80,7 +80,7 @@ public class StockController {
         String ticker = objectNode.get("ticker").asText();
         int amount = objectNode.get("amount").asInt();
 
-        double marketPrice = 1;//StockRetriever.getMarketPrice(ticker);
+        double marketPrice = StockRetriever.getCurrentResponse(ticker);
 
         if(marketPrice * amount > currentUser.getCash()){
             return new ResponseEntity<String>("Insufficient funds", HttpStatus.NOT_ACCEPTABLE);
@@ -99,7 +99,7 @@ public class StockController {
         if(currentUser.getStockRepo().getStocks().get(ticker) < amount || !currentUser.getStockRepo().getStocks().containsKey(ticker)){
             return new ResponseEntity<String>("You do not own enough of " + ticker, HttpStatus.NOT_ACCEPTABLE);
         }
-        double marketPrice = 1;//StockRetriever.getMarketPrice(ticker);
+        double marketPrice = StockRetriever.getCurrentResponse(ticker);
         currentUser.setCash(currentUser.getCash() + marketPrice * amount);
         currentUser.getStockRepo().sellStock(ticker, amount);
         response.sendRedirect("/account");
